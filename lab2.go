@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 	"unsafe"
 )
 
@@ -32,18 +33,20 @@ func format_input() ([]byte, int) {
 			break
 		}
 
-		if (character >= 'A' && character <= 'Z') || (character >= 'a' && character <= 'z') || character == ' ' {
+		if (character >= 'A' && character <= 'Z') || (character >= 'a' && character <= 'z') || (character == ' ' && valid_count > 0) {
 			//Value of result pointer change to character
 			*ptr_result = character
 			//Step up result pointer
 			ptr_result = (*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr_result)) + 1))
 			valid_count++
 		}
+
 		count++
 
 		//Step up input pointer
 		ptr_input = (*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr_input)) + 1))
 	}
+
 	return result[:valid_count], valid_count
 
 }
@@ -133,7 +136,8 @@ func count_vowels_consonants(letter_list *[]byte, length int) (map[byte]int, int
 
 func format_vowels_consonants_output(vowels, consonants int, type_vowels string) string {
 
-	output := fmt.Sprintf("Number of vowels: %d\n%s\nNumber of consonants: %d", vowels, type_vowels, consonants)
+	spaced := strings.Join(strings.Split(type_vowels, ""), " ")
+	output := fmt.Sprintf(" %d %s %d ", vowels, spaced, consonants)
 
 	return output
 }
@@ -155,7 +159,7 @@ func sort_map(vowels_map map[byte]int) string {
 		vowel := *ptr
 		value := vowels_map[vowel]
 		if value > 0 {
-			output += fmt.Sprintf("Number of \"%c\": %d, ", vowel, value)
+			output += fmt.Sprint(value)
 		}
 
 		ptr = (*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr)) + 1))
@@ -194,12 +198,12 @@ func main() {
 	input_list, length := format_input()
 
 	reverse_list(&input_list, length)
-	fmt.Printf("\nReversed-word: %s\n", string(input_list))
+	fmt.Print(string(input_list))
 
 	vowels_counts, number_of_vowels, number_of_consonants := count_vowels_consonants(&input_list, length)
 	ordered_vowels_count := sort_map(vowels_counts)
-	fmt.Println(format_vowels_consonants_output(number_of_vowels, number_of_consonants, ordered_vowels_count))
+	fmt.Print(format_vowels_consonants_output(number_of_vowels, number_of_consonants, ordered_vowels_count))
 
 	change_space_for_underscores(&input_list, length)
-	fmt.Printf("Modified string: %s\n", string(input_list))
+	fmt.Print(string(input_list))
 }
